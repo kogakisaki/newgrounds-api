@@ -1,0 +1,53 @@
+{
+  "name": "newgrounds-api",
+  "version": "1.0.0",
+  "description": "A simple Node.js library for interacting with the Newgrounds data.",
+  "main": "dist/index.js",
+  "module": "dist/esm/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/esm/index.js",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "build": "npm run clean && npm run build:cjs && npm run build:esm && npm run build:types",
+    "build:cjs": "tsc --module commonjs --outDir dist",
+    "build:esm": "tsc --module es2020 --outDir dist/esm",
+    "build:types": "tsc --emitDeclarationOnly --outDir dist",
+    "clean": "rm -rf dist",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "newgrounds",
+    "api",
+    "audio",
+    "search",
+    "typescript"
+  ],
+  "author": "katt",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/cheerio": "^0.22.35",
+    "@types/node": "^20.14.0",
+    "typescript": "^5.4.5"
+  },
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.12"
+  },
+  "files": [
+    "dist"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/carlylekatto/newgrounds-api.git"
+  },
+  "bugs": {
+    "url": "https://github.com/carlylekatto/newgrounds-api/issues"
+  },
+  "homepage": "https://github.com/carlylekatto/newgrounds-api#readme"
+}

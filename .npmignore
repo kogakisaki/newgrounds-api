@@ -1,0 +1,5 @@
+*.html
+test.*
+src/
+.vscode
+node_modules/
