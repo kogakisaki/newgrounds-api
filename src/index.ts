@@ -12,6 +12,7 @@ export { Newgrounds } from './classes/Newgrounds'; // <--- Correct way: EXPORT f
 
 // Export core interfaces directly related to the API's functionality.
 export type { SearchOptions, AudioSearchResult } from './interfaces/search';
+export type { AudioDetails } from './interfaces/audioDetails'
 
 // Re-export all other general types and interfaces defined in the 'types' directory's index file.
 export type { SearchSort } from './types/search';

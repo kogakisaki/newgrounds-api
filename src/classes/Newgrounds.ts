@@ -242,10 +242,10 @@ export class Newgrounds {
     if (info.tags) {
       info.tags = info.tags.split(", ");
     }
-    info.frontpaged = {
+    info.frontpaged = $(".frontpage a").length !== 0 ? {
       time: new Date($(".frontpage a").text().trim()).toISOString(),
       url: `https://www.newgrounds.com${$(".frontpage a").attr("href")}`,
-    };
+    } : undefined;
     const appearances = {
       label: $("ul.itemlist.alternating > li > span").text(),
       url: $("ul.itemlist.alternating > li > span > a").attr("href"),
