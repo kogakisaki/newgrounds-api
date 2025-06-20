@@ -1,5 +1,5 @@
-import { Newgrounds } from "./Newgrounds";
-import { AudioDetails } from "../interfaces/audioDetails";
+import { Newgrounds } from "./Newgrounds.js";
+import { AudioDetails } from "../interfaces/audioDetails.js";
 
 /**
  * Represents an audio object

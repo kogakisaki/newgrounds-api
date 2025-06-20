@@ -1,7 +1,7 @@
-import { SearchOptions, AudioSearchResult } from "../interfaces/search";
-import { Audio } from "./Audio";
-import { BaseOptions } from "../interfaces/baseOptions";
-import { convertTimeFormatToSeconds, convertHtmlToMarkdown } from "../utils";
+import { SearchOptions, AudioSearchResult } from "../interfaces/search.js";
+import { Audio } from "./Audio.js";
+import { BaseOptions } from "../interfaces/baseOptions.js";
+import { convertTimeFormatToSeconds, convertHtmlToMarkdown } from "../utils/index.js";
 import * as cheerio from "cheerio";
 
 /**

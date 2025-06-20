@@ -1,4 +1,4 @@
-import { SearchSort } from "../types/search";
+import { SearchSort } from "../types/search.js";
 
 /**
  * @interface SearchOptions

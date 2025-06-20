@@ -1,17 +1,17 @@
 {
   "compilerOptions": {
-    "target": "es2024", // Phiên bản JS mục tiêu (có thể là es2017, es2018, esnext tùy ý)
-    "lib": ["es2024", "dom"], // Thêm "dom" nếu bạn dùng Fetch API (có sẵn trong Node.js 18+ hoặc browser)
-    "declaration": true, // Bật để tạo file .d.ts
-    "declarationMap": true, // Tạo source maps cho declaration files
-    "sourceMap": true, // Tạo source maps cho JS files
-    "outDir": "./dist", // Thư mục đầu ra mặc định (sẽ bị ghi đè bởi scripts)
-    "strict": true, // Bật tất cả các tùy chọn kiểm tra kiểu nghiêm ngặt
-    "esModuleInterop": true, // Cho phép interoperability tốt hơn giữa CommonJS và ES Modules
-    "skipLibCheck": true, // Bỏ qua kiểm tra kiểu của các file thư viện
-    "forceConsistentCasingInFileNames": true, // Đảm bảo tên file nhất quán
-    "moduleResolution": "node" // Cách TypeScript giải quyết các module
+    "target": "es2022",
+    "module": "commonjs",
+    "lib": ["es2022", "dom"],
+    "declaration": true,
+    "sourceMap": true,
+    "outDir": "./dist",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "moduleResolution": "node"
   },
-  "include": ["src/**/*.ts"], // Bao gồm tất cả các file .ts trong thư mục src
-  "exclude": ["node_modules", "dist"] // Loại trừ các thư mục này
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", "dist"]
 }
