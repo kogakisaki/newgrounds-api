@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "es2024", // Phiên bản JS mục tiêu (có thể là es2017, es2018, esnext tùy ý)
-    "lib": ["es2016", "dom"], // Thêm "dom" nếu bạn dùng Fetch API (có sẵn trong Node.js 18+ hoặc browser)
+    "lib": ["es2024", "dom"], // Thêm "dom" nếu bạn dùng Fetch API (có sẵn trong Node.js 18+ hoặc browser)
     "declaration": true, // Bật để tạo file .d.ts
     "declarationMap": true, // Tạo source maps cho declaration files
     "sourceMap": true, // Tạo source maps cho JS files
