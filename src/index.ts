@@ -8,11 +8,12 @@
 
 // Export the main Newgrounds API class from its dedicated file.
 // This allows users to import it like: import { Newgrounds } from 'newgrounds-api';
-export { Newgrounds } from './classes/Newgrounds'; // <--- Correct way: EXPORT from its file
+export { Newgrounds } from './classes/Newgrounds';
+export { Audio } from './classes/Audio';
+export { Playlist } from './classes/Playlist';
 
 // Export core interfaces directly related to the API's functionality.
-export type { SearchOptions, AudioSearchResult } from './interfaces/search';
-export type { AudioDetails } from './interfaces/audioDetails';
-
-// Re-export all other general types and interfaces defined in the 'types' directory's index file.
-export type { SearchSort } from './types/search';
+export * from './interfaces/search';
+export * from './interfaces/audioDetails';
+export * from './interfaces/playlistDetails';
+export * from './types/search';

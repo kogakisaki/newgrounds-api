@@ -2,7 +2,7 @@ import { Newgrounds } from "./Newgrounds.js";
 import { AudioDetails } from "../interfaces/audioDetails.js";
 
 /**
- * Represents an audio object
+ * Represents a Newgrounds audio.
  * @class Audio
  */
 export class Audio {

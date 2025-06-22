@@ -3,21 +3,21 @@ import { Audio } from "./Audio.js";
 import { BaseOptions } from "../interfaces/baseOptions.js";
 import { convertTimeFormatToSeconds, convertHtmlToMarkdown } from "../utils/index.js";
 import * as cheerio from "cheerio";
+import puppeteer from "puppeteer";
+import { Playlist } from "./Playlist.js";
 
 /**
  * Represents the Newgrounds API
  * @class Newgrounds
  */
 export class Newgrounds {
-  /**
-   * @prooperty {BaseOptions} options - The base options
-   * @readonly
-   */
   readonly options: BaseOptions;
+  readonly puppeteer: typeof puppeteer;
   constructor() {
     this.options = {
       ua: "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:138.0) Gecko/20100101 Firefox/138.0",
     };
+    this.puppeteer = puppeteer;
   }
 
   /**
@@ -63,15 +63,8 @@ export class Newgrounds {
       const id = link.substring(link.lastIndexOf("/") + 1);
       const thumbnail = mainAnchor.find(".item-icon img").attr("src") ?? "";
 
-      const artist = mainAnchor
-        .find(".detail-title")
-        .find("strong")
-        .text()
-        .trim();
-      const short_description = mainAnchor
-        .find(".detail-description")
-        .text()
-        .trim();
+      const artist = mainAnchor.find(".detail-title").find("strong").text().trim();
+      const short_description = mainAnchor.find(".detail-description").text().trim();
 
       const metaSection = mainAnchor.find(".item-details-meta");
 
@@ -95,21 +88,15 @@ export class Newgrounds {
 
       if (ddElements.length === 1) {
         const viewsText = ddElements.text();
-        views = viewsText
-          ? Number(viewsText.split(",").join("").replace(" Views", ""))
-          : null;
+        views = viewsText ? Number(viewsText.split(",").join("").replace(" Views", "")) : null;
       } else if (ddElements.length === 2) {
         const viewsText = ddElements.eq(1).text();
-        views = viewsText
-          ? Number(viewsText.split(",").join("").replace(" Views", ""))
-          : null;
+        views = viewsText ? Number(viewsText.split(",").join("").replace(" Views", "")) : null;
       } else if (ddElements.length >= 3) {
         type = ddElements.eq(0).text();
         genre = ddElements.eq(1).text();
         const viewsText = ddElements.eq(2).text();
-        views = viewsText
-          ? Number(viewsText.split(",").join("").replace(" Views", ""))
-          : null;
+        views = viewsText ? Number(viewsText.split(",").join("").replace(" Views", "")) : null;
       }
 
       res.push({
@@ -128,11 +115,14 @@ export class Newgrounds {
     return res;
   }
 
+  /**
+   * Get details of an audio.
+   * @param {string} id audio id
+   * @returns {Promise<Audio>}
+   */
   async getAudio(id: string): Promise<Audio> {
     const $ = cheerio.load(
-      await (
-        await fetch(`https://www.newgrounds.com/audio/listen/${id}`)
-      ).text()
+      await (await fetch(`https://www.newgrounds.com/audio/listen/${id}`)).text()
     );
 
     const url = `https://www.newgrounds.com/audio/listen/${id}`;
@@ -225,9 +215,7 @@ export class Newgrounds {
     }
     if (info.genre) {
       info.genre = {
-        id: new URL(
-          $(".sidestats.flex-1 dd a").attr("href") || ""
-        ).searchParams.get("genre"),
+        id: new URL($(".sidestats.flex-1 dd a").attr("href") || "").searchParams.get("genre"),
         name: info.genre,
         browse_url: $(".sidestats.flex-1 dd a").attr("href"),
       };
@@ -242,10 +230,13 @@ export class Newgrounds {
     if (info.tags) {
       info.tags = info.tags.split(", ");
     }
-    info.frontpaged = $(".frontpage a").length !== 0 ? {
-      time: new Date($(".frontpage a").text().trim()).toISOString(),
-      url: `https://www.newgrounds.com${$(".frontpage a").attr("href")}`,
-    } : undefined;
+    info.frontpaged =
+      $(".frontpage a").length !== 0
+        ? {
+            time: new Date($(".frontpage a").text().trim()).toISOString(),
+            url: `https://www.newgrounds.com${$(".frontpage a").attr("href")}`,
+          }
+        : undefined;
     const appearances = {
       label: $("ul.itemlist.alternating > li > span").text(),
       url: $("ul.itemlist.alternating > li > span > a").attr("href"),
@@ -268,17 +259,12 @@ export class Newgrounds {
       $("div#creative_commons .pod-body.creative-commons").html() ?? ""
     );
     const audio = {
-      rating: $("div[itemprop='itemReviewed'] > h2")
-        .attr("class")
-        ?.split("-")[1]
-        .toUpperCase(),
+      rating: $("div[itemprop='itemReviewed'] > h2").attr("class")?.split("-")[1].toUpperCase(),
       download_url: $("a.icon-download").attr("href"),
       file_url: $("meta[property='og:audio']").attr("content"),
       share_url: $("a.icon-share").attr("href"),
     };
-    const author_comments = convertHtmlToMarkdown(
-      $("div#author_comments").html() ?? ""
-    );
+    const author_comments = convertHtmlToMarkdown($("div#author_comments").html() ?? "");
     const reviews = Boolean($("div > div .pod-body.review"));
 
     return new Audio(this, {
@@ -306,6 +292,146 @@ export class Newgrounds {
       audio: audio,
       author_comments: author_comments,
       reviews: reviews,
+    });
+  }
+
+  /**
+   * Get details of a playlist.
+   * @param {string} id playlist id
+   * @returns {Promise<Playlist>}
+   */
+  async getPlaylist(id: string): Promise<Playlist> {
+    const browser = await puppeteer.launch();
+    const page = await browser.newPage();
+    await page.setViewport({
+      width: 1280,
+      height: 720,
+    });
+    await page.setUserAgent(
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36"
+    );
+    await page.goto(`https://www.newgrounds.com/playlist/${id}`, {
+      waitUntil: ["networkidle0", "networkidle2"],
+    });
+    const playlistData = await page.evaluate(function () {
+      const urlPath = window.location.pathname;
+      const playlistIdMatch = urlPath.match(/^\/playlist\/([^\/]+\/[^\/]+)/);
+      const playlistId = playlistIdMatch ? playlistIdMatch[1] : "";
+
+      // Extract playlist title
+      const playlistTitleElem = document.querySelector("#playlist_outer .pod-head h2");
+      const playlistTitle = playlistTitleElem ? playlistTitleElem.textContent?.trim() : "";
+
+      const iconElem = document.querySelector("img.playlist-icon-large");
+      const playlistIcon = iconElem ? (iconElem as HTMLImageElement).src : "";
+      const authorElem = document.querySelector("ul.authorlinks li div.item-user");
+      let author: string | undefined = "";
+      let authorIcon = "";
+      let authorId = "";
+      let authorUrl = "";
+      if (authorElem) {
+        const authorLink = authorElem.querySelector("a.item-icon");
+        if (authorLink) {
+          authorUrl = (authorLink as HTMLAnchorElement).href || "";
+          try {
+            const urlObj = new URL(authorUrl);
+            authorId = "";
+          } catch (e) {
+            authorId = "";
+          }
+          let iconImg = authorLink.querySelector("img");
+          if (!iconImg) {
+            const svgImage = authorLink.querySelector("svg image");
+            authorIcon = svgImage
+              ? svgImage.getAttribute("href") || svgImage.getAttribute("xlink:href") || ""
+              : "";
+          } else {
+            authorIcon = (iconImg as HTMLImageElement).src;
+          }
+        }
+        const authorNameElem = authorElem.querySelector("h4 a");
+        author = authorNameElem ? authorNameElem.textContent?.trim() : "";
+      }
+      const playlistItems: any[] = [];
+      const list = document.querySelector("#playlist_list");
+      if (!list) {
+        return {
+          playlistId,
+          playlistIcon,
+          author,
+          authorIcon,
+          authorId,
+          authorUrl,
+          items: playlistItems,
+        };
+      }
+      const items = list.querySelectorAll("li");
+      items.forEach((li) => {
+        const audioWrapperElem = li.querySelector(".audio-wrapper");
+        if (!audioWrapperElem) return;
+        const link = audioWrapperElem.querySelector("a.item-audiosubmission");
+        if (!link) return;
+        const url = (link as HTMLAnchorElement).href;
+        const title = link.getAttribute("title") || "";
+        const authorElem = link.querySelector(".item-details-main .detail-title span strong");
+        const author = authorElem ? authorElem.textContent?.trim() : "";
+        const descriptionElem = link.querySelector(".detail-description");
+        const description = descriptionElem ? descriptionElem.textContent?.trim() : "";
+        const viewsElem = link.querySelector(".item-details-meta dl dd:nth-child(3)");
+        const views = viewsElem ? viewsElem.textContent?.trim() : "";
+        const scoreElem = link.querySelector(".star-score");
+        let score = "";
+        if (scoreElem && (scoreElem as HTMLDivElement).title) {
+          score = (scoreElem as HTMLDivElement).title.replace("Score: ", "").trim();
+        }
+        const genreElem = link.querySelector(".item-details-meta dl dd:nth-child(2)");
+        const genre = genreElem ? genreElem.textContent?.trim() : "";
+        let id = "";
+        try {
+          const urlObj = new URL(url);
+          const pathParts = urlObj.pathname.split("/");
+          if (pathParts.length >= 4) {
+            id = pathParts[3];
+          }
+        } catch (e) {
+          id = "";
+        }
+        const iconElem = link.querySelector(".item-icon img");
+        const icon = iconElem ? (iconElem as HTMLImageElement).src : "";
+        playlistItems.push({
+          id,
+          title,
+          author,
+          description,
+          url,
+          views,
+          score,
+          genre,
+          icon,
+        });
+      });
+      return {
+        playlistId,
+        playlistTitle,
+        playlistIcon,
+        author,
+        authorIcon,
+        authorUrl,
+        items: playlistItems,
+      };
+    });
+    await browser.close();
+    return new Playlist(this, {
+      id: playlistData.playlistId,
+      title: playlistData.playlistTitle,
+      url: `https://www.newgrounds.com/playlist/${id}`,
+      thumbnail: playlistData.playlistIcon,
+      author: {
+        name: playlistData.author,
+        url: playlistData.authorUrl,
+        icon: playlistData.authorIcon,
+      },
+      items: playlistData.items,
     });
   }
 }
