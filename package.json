@@ -1,6 +1,6 @@
 {
   "name": "newgrounds-api",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "A simple Node.js library for interacting with the Newgrounds data.",
   "main": "./dist/index.js",
   "module": "./dist/index.js",

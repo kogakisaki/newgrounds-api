@@ -382,7 +382,7 @@ export class Newgrounds {
         const scoreElem = link.querySelector(".star-score");
         let score = "";
         if (scoreElem && (scoreElem as HTMLDivElement).title) {
-          score = (scoreElem as HTMLDivElement).title.replace("Score: ", "").trim();
+          score = (scoreElem as HTMLDivElement).title.replace("Score: ", "").trim().split("/")[0];
         }
         const genreElem = link.querySelector(".item-details-meta dl dd:nth-child(2)");
         const genre = genreElem ? genreElem.textContent?.trim() : "";
