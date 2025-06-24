@@ -5,9 +5,9 @@ export interface PlaylistItem {
   thumbnail: string;
   artist: string;
   short_description: string;
-  views: number;
-  score: number;
-  genre: string;
+  views: number | null;
+  score: number | null;
+  genre?: string;
 }
 
 export interface PlaylistDetails {

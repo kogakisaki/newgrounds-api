@@ -378,7 +378,7 @@ export class Newgrounds {
         const descriptionElem = link.querySelector(".detail-description");
         const description = descriptionElem ? descriptionElem.textContent?.trim() : "";
         const viewsElem = link.querySelector(".item-details-meta dl dd:nth-child(3)");
-        const views = viewsElem ? viewsElem.textContent?.trim() : "";
+        const views = viewsElem ? viewsElem.textContent?.trim().replace("Views", "") : "";
         const scoreElem = link.querySelector(".star-score");
         let score = "";
         if (scoreElem && (scoreElem as HTMLDivElement).title) {
@@ -404,9 +404,9 @@ export class Newgrounds {
           author,
           description,
           url,
-          views,
-          score,
-          genre,
+          views: views !== "" ? Number(views) : null,
+          score: score !== "" ? Number(score) : null,
+          genre: genre !== "" ? genre : undefined,
           icon,
         });
       });
